@@ -87,7 +87,7 @@
   - **Property 8: Capacity constraint invariant**
   - **Validates: Requirements 2.1, 3.1**
 
-- [-] 9. Update infrastructure for new tables
+- [x] 9. Update infrastructure for new tables
   - Add Users DynamoDB table to CDK stack
   - Add Registrations DynamoDB table with GSI
   - Update Lambda permissions for new tables
