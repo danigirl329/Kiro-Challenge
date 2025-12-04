@@ -12,6 +12,15 @@ table = dynamodb.Table(table_name)
 def create_event(event_data: dict) -> dict:
     if 'eventId' not in event_data or not event_data['eventId']:
         event_data['eventId'] = str(uuid.uuid4())
+    
+    # Initialize registration fields
+    if 'currentRegistrations' not in event_data:
+        event_data['currentRegistrations'] = 0
+    if 'currentWaitlist' not in event_data:
+        event_data['currentWaitlist'] = 0
+    if 'waitlistEnabled' not in event_data:
+        event_data['waitlistEnabled'] = False
+    
     table.put_item(Item=event_data)
     return event_data
 

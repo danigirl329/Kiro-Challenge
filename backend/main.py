@@ -3,8 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from typing import List
-from models import Event, EventCreate, EventUpdate
+from models import (
+    Event, EventCreate, EventUpdate,
+    User, UserCreate, UserUpdate,
+    RegistrationRequest, RegistrationResponse,
+    UserRegistrations, EventRegistrations
+)
 import database
+import registration_db
 import os
 import logging
 
@@ -148,3 +154,186 @@ def delete_event(event_id: str):
     except Exception as e:
         logger.error(f"Error deleting event {event_id}: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to delete event")
+
+
+# User Management Endpoints
+@app.post("/users", response_model=User, status_code=201)
+def create_user(user: UserCreate):
+    try:
+        user_data = user.model_dump()
+        created_user = registration_db.create_user(user_data)
+        logger.info(f"Created user: {created_user['userId']}")
+        return created_user
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error creating user: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create user")
+
+
+@app.get("/users/{user_id}", response_model=User)
+def get_user(user_id: str):
+    try:
+        user = registration_db.get_user(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return user
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error retrieving user {user_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve user")
+
+
+@app.get("/users", response_model=List[User])
+def get_all_users():
+    try:
+        users = registration_db.get_all_users()
+        return users
+    except Exception as e:
+        logger.error(f"Error retrieving users: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve users")
+
+
+@app.put("/users/{user_id}", response_model=User)
+def update_user(user_id: str, user_update: UserUpdate):
+    try:
+        update_data = {k: v for k, v in user_update.model_dump().items() if v is not None}
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No fields to update")
+        
+        updated_user = registration_db.update_user(user_id, update_data)
+        if not updated_user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        return updated_user
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating user {user_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update user")
+
+
+@app.delete("/users/{user_id}", status_code=204)
+def delete_user(user_id: str):
+    try:
+        success = registration_db.delete_user(user_id)
+        if not success:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        logger.info(f"Deleted user: {user_id}")
+        return None
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting user {user_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to delete user")
+
+
+# Registration Endpoints
+@app.post("/events/{event_id}/registrations", response_model=RegistrationResponse, status_code=201)
+def register_for_event(event_id: str, request: RegistrationRequest):
+    try:
+        registration = registration_db.register_user(event_id, request.userId)
+        logger.info(f"User {request.userId} registered for event {event_id}: {registration['status']}")
+        return registration
+    except ValueError as e:
+        error_msg = str(e)
+        if "not found" in error_msg.lower():
+            raise HTTPException(status_code=404, detail=error_msg)
+        elif "already" in error_msg.lower():
+            raise HTTPException(status_code=409, detail=error_msg)
+        elif "capacity" in error_msg.lower():
+            raise HTTPException(status_code=409, detail=error_msg)
+        raise HTTPException(status_code=400, detail=error_msg)
+    except Exception as e:
+        logger.error(f"Error registering user for event: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to register for event")
+
+
+@app.delete("/events/{event_id}/registrations/{user_id}", status_code=204)
+def unregister_from_event(event_id: str, user_id: str):
+    try:
+        registration_db.unregister_user(event_id, user_id)
+        logger.info(f"User {user_id} unregistered from event {event_id}")
+        return None
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error unregistering user from event: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to unregister from event")
+
+
+@app.get("/users/{user_id}/registrations", response_model=UserRegistrations)
+def get_user_registrations(user_id: str):
+    try:
+        user = registration_db.get_user(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        registrations = registration_db.get_user_registrations(user_id)
+        
+        # Enrich with event details
+        enriched = []
+        for reg in registrations:
+            event = database.get_event(reg['eventId'])
+            if event:
+                enriched.append({
+                    **reg,
+                    'event': event
+                })
+        
+        return {
+            'userId': user_id,
+            'registrations': enriched
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error retrieving user registrations: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve registrations")
+
+
+@app.get("/events/{event_id}/registrations", response_model=EventRegistrations)
+def get_event_registrations(event_id: str):
+    try:
+        event = database.get_event(event_id)
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        registrations = registration_db.get_event_registrations(event_id)
+        
+        # Enrich with user details
+        registered_enriched = []
+        for reg in registrations['registered']:
+            user = registration_db.get_user(reg['userId'])
+            if user:
+                registered_enriched.append({
+                    **reg,
+                    'user': user
+                })
+        
+        waitlisted_enriched = []
+        for reg in registrations['waitlisted']:
+            user = registration_db.get_user(reg['userId'])
+            if user:
+                waitlisted_enriched.append({
+                    **reg,
+                    'user': user
+                })
+        
+        return {
+            'eventId': event_id,
+            'registered': registered_enriched,
+            'waitlisted': waitlisted_enriched,
+            'counts': {
+                'registered': len(registered_enriched),
+                'waitlisted': len(waitlisted_enriched),
+                'capacity': event.get('capacity', 0)
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error retrieving event registrations: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve event registrations")

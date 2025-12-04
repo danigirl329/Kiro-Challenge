@@ -10,7 +10,7 @@ export class InfrastructureStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // DynamoDB Table
+    // DynamoDB Tables
     const eventsTable = new dynamodb.Table(this, 'EventsTable', {
       tableName: 'Events',
       partitionKey: {
@@ -19,6 +19,40 @@ export class InfrastructureStack extends cdk.Stack {
       },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    const usersTable = new dynamodb.Table(this, 'UsersTable', {
+      tableName: 'Users',
+      partitionKey: {
+        name: 'userId',
+        type: dynamodb.AttributeType.STRING,
+      },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    const registrationsTable = new dynamodb.Table(this, 'RegistrationsTable', {
+      tableName: 'Registrations',
+      partitionKey: {
+        name: 'eventId',
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'userId',
+        type: dynamodb.AttributeType.STRING,
+      },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    // Add GSI for querying registrations by userId
+    registrationsTable.addGlobalSecondaryIndex({
+      indexName: 'userId-index',
+      partitionKey: {
+        name: 'userId',
+        type: dynamodb.AttributeType.STRING,
+      },
+      projectionType: dynamodb.ProjectionType.ALL,
     });
 
     // Lambda Function
@@ -38,6 +72,8 @@ export class InfrastructureStack extends cdk.Stack {
       }),
       environment: {
         DYNAMODB_TABLE_NAME: eventsTable.tableName,
+        USERS_TABLE_NAME: usersTable.tableName,
+        REGISTRATIONS_TABLE_NAME: registrationsTable.tableName,
         ALLOWED_ORIGINS: '*',
       },
       timeout: cdk.Duration.seconds(30),
@@ -46,6 +82,8 @@ export class InfrastructureStack extends cdk.Stack {
 
     // Grant Lambda permissions to access DynamoDB
     eventsTable.grantReadWriteData(apiLambda);
+    usersTable.grantReadWriteData(apiLambda);
+    registrationsTable.grantReadWriteData(apiLambda);
 
     // API Gateway
     const api = new apigateway.LambdaRestApi(this, 'EventsApi', {

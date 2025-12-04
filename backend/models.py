@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 
@@ -12,6 +12,9 @@ class Event(BaseModel):
     capacity: int = Field(..., gt=0, le=100000)
     organizer: str = Field(..., min_length=1, max_length=100)
     status: str = Field(..., pattern="^(draft|published|cancelled|completed|active)$")
+    waitlistEnabled: bool = False
+    currentRegistrations: int = 0
+    currentWaitlist: int = 0
 
 
 class EventCreate(BaseModel):
@@ -23,6 +26,7 @@ class EventCreate(BaseModel):
     capacity: int = Field(..., gt=0, le=100000)
     organizer: str = Field(..., min_length=1, max_length=100)
     status: str = Field(default="draft", pattern="^(draft|published|cancelled|completed|active)$")
+    waitlistEnabled: bool = False
 
 
 class EventUpdate(BaseModel):
@@ -33,3 +37,57 @@ class EventUpdate(BaseModel):
     capacity: Optional[int] = Field(None, gt=0, le=100000)
     organizer: Optional[str] = Field(None, min_length=1, max_length=100)
     status: Optional[str] = Field(None, pattern="^(draft|published|cancelled|completed|active)$")
+    waitlistEnabled: Optional[bool] = None
+
+
+# User models
+class User(BaseModel):
+    userId: str
+    name: str = Field(..., min_length=1, max_length=200)
+    createdAt: str
+    updatedAt: str
+
+
+class UserCreate(BaseModel):
+    userId: Optional[str] = None
+    name: str = Field(..., min_length=1, max_length=200)
+
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=200)
+
+
+# Registration models
+class Registration(BaseModel):
+    registrationId: str
+    userId: str
+    eventId: str
+    status: str  # "registered" or "waitlisted"
+    registeredAt: str
+    position: Optional[int] = None
+
+
+class RegistrationRequest(BaseModel):
+    userId: str = Field(..., min_length=1)
+
+
+class RegistrationResponse(BaseModel):
+    registrationId: str
+    userId: str
+    eventId: str
+    status: str
+    registeredAt: str
+    position: Optional[int] = None
+    message: str
+
+
+class UserRegistrations(BaseModel):
+    userId: str
+    registrations: List[dict]
+
+
+class EventRegistrations(BaseModel):
+    eventId: str
+    registered: List[dict]
+    waitlisted: List[dict]
+    counts: dict

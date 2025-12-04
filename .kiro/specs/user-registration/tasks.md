@@ -1,11 +1,11 @@
 # Implementation Plan
 
-- [ ] 1. Set up data models and database schema
+- [x] 1. Set up data models and database schema
   - Create User, Registration, and extended Event Pydantic models
   - Add capacity and waitlist fields to Event model
   - _Requirements: 1.1, 1.2, 2.1, 2.2_
 
-- [ ] 2. Implement user management
+- [x] 2. Implement user management
   - Create user CRUD operations in database layer
   - Add user API endpoints (POST, GET, PUT, DELETE)
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
@@ -14,7 +14,7 @@
   - **Property 1: User creation uniqueness**
   - **Validates: Requirements 1.3**
 
-- [ ] 3. Implement registration core logic
+- [x] 3. Implement registration core logic
   - Create registration validation function
   - Implement capacity checking logic
   - Add registration to database operations
@@ -28,7 +28,7 @@
   - **Property 4: No duplicate registrations**
   - **Validates: Requirements 3.4**
 
-- [ ] 4. Implement waitlist functionality
+- [x] 4. Implement waitlist functionality
   - Add waitlist addition logic when event is full
   - Implement waitlist position tracking
   - Create waitlist query operations
@@ -42,7 +42,7 @@
   - **Property 7: Waitlist position consistency**
   - **Validates: Requirements 7.5**
 
-- [ ] 5. Implement unregistration with waitlist promotion
+- [x] 5. Implement unregistration with waitlist promotion
   - Create unregister operation
   - Implement automatic waitlist promotion logic
   - Handle empty waitlist scenario
@@ -52,7 +52,7 @@
   - **Property 5: Waitlist promotion on unregister**
   - **Validates: Requirements 4.2**
 
-- [ ] 6. Implement registration queries
+- [x] 6. Implement registration queries
   - Add endpoint to get user's registrations
   - Add endpoint to get event's registrations and waitlist
   - Implement filtering by status (registered/waitlisted)
@@ -62,7 +62,7 @@
   - **Property 10: Registration list completeness**
   - **Validates: Requirements 5.1, 5.2**
 
-- [ ] 7. Add registration API endpoints
+- [x] 7. Add registration API endpoints
   - POST /events/{eventId}/register
   - DELETE /events/{eventId}/register/{userId}
   - GET /users/{userId}/registrations
@@ -87,7 +87,7 @@
   - **Property 8: Capacity constraint invariant**
   - **Validates: Requirements 2.1, 3.1**
 
-- [ ] 9. Update infrastructure for new tables
+- [-] 9. Update infrastructure for new tables
   - Add Users DynamoDB table to CDK stack
   - Add Registrations DynamoDB table with GSI
   - Update Lambda permissions for new tables
