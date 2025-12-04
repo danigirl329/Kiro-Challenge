@@ -2,12 +2,12 @@
   "name": "Update Docs on Source Change",
   "description": "Automatically updates documentation when source code files are modified",
   "trigger": {
-    "type": "onFileSave",
+    "type": "fileEdited",
     "filePattern": "**/*.{py,ts,js,tsx,jsx}"
   },
   "action": {
-    "type": "sendMessage",
-    "message": "A source code file was just saved: {{filePath}}. Please review the changes and update the relevant documentation files (README.md, backend/docs/index.html, or API documentation) to reflect any new features, endpoints, or changes to existing functionality. Focus on:\n\n1. New API endpoints or modified endpoints\n2. New data models or schema changes\n3. New features or functionality\n4. Changes to request/response formats\n5. Updated examples or usage instructions\n\nOnly update documentation if there are meaningful changes that users or developers need to know about. If the changes are internal refactoring or minor fixes that don't affect the public API or usage, you can skip the documentation update."
+    "type": "askAgent",
+    "message": "A source code file was just edited: {{filePath}}. Please review the changes and update the relevant documentation files (README.md, backend/docs/index.html, or API documentation) to reflect any new features, endpoints, or changes to existing functionality. Focus on:\n\n1. New API endpoints or modified endpoints\n2. New data models or schema changes\n3. New features or functionality\n4. Changes to request/response formats\n5. Updated examples or usage instructions\n\nOnly update documentation if there are meaningful changes that users or developers need to know about. If the changes are internal refactoring or minor fixes that don't affect the public API or usage, you can skip the documentation update."
   },
   "enabled": true
 }
