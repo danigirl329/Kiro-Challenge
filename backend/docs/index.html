@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        h3 {
+            color: #764ba2;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .module {
+            margin-bottom: 30px;
+        }
+        .function {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        .function-name {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #764ba2;
+            font-size: 1.1em;
+        }
+        .params {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .param {
+            margin: 5px 0;
+        }
+        .param-name {
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .returns {
+            margin-top: 10px;
+            font-style: italic;
+            color: #666;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .endpoint {
+            background: #e8f4f8;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #2196F3;
+            border-radius: 4px;
+        }
+        .method {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+        .method.get { background: #4CAF50; color: white; }
+        .method.post { background: #2196F3; color: white; }
+        .method.put { background: #FF9800; color: white; }
+        .method.delete { background: #f44336; color: white; }
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .toc ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+        .toc li {
+            margin: 8px 0;
+        }
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Events API Documentation</h1>
+            <p class="subtitle">FastAPI Backend with DynamoDB</p>
+        </header>
+
+        <div class="section toc">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#modules">Modules</a>
+                    <ul>
+                        <li><a href="#main">main.py - API Endpoints</a></li>
+                        <li><a href="#models">models.py - Data Models</a></li>
+                        <li><a href="#database">database.py - Database Operations</a></li>
+                    </ul>
+                </li>
+                <li><a href="#endpoints">API Endpoints</a></li>
+            </ul>
+        </div>
+
+        <div class="section" id="overview">
+            <h2>Overview</h2>
+            <p>This is a RESTful API for managing events, built with FastAPI and deployed on AWS Lambda with DynamoDB as the data store.</p>
+            <p><strong>Base URL:</strong> <code>https://myto1dwcaa.execute-api.us-west-2.amazonaws.com/prod/</code></p>
+        </div>
+
+        <div class="section" id="modules">
+            <h2>Modules</h2>
+
+            <div class="module" id="main">
+                <h3>main.py</h3>
+                <p>Main FastAPI application with all API endpoints and middleware configuration.</p>
+
+                <div class="function">
+                    <div class="function-name">create_event(event: EventCreate)</div>
+                    <p>Create a new event in the database.</p>
+                    <div class="params">
+                        <div class="param"><span class="param-name">event</span>: EventCreate - Event data to create</div>
+                    </div>
+                    <div class="returns">Returns: Event (201 Created)</div>
+                </div>
+
+                <div class="function">
+                    <div class="function-name">get_all_events(status: str = None)</div>
+                    <p>Retrieve all events, optionally filtered by status.</p>
+                    <div class="params">
+                        <div class="param"><span class="param-name">status</span>: str (optional) - Filter events by status</div>
+                    </div>
+                    <div class="returns">Returns: List[Event] (200 OK)</div>
+                </div>
+
+                <div class="function">
+                    <div class="function-name">get_event(event_id: str)</div>
+                    <p>Retrieve a specific event by ID.</p>
+                    <div class="params">
+                        <div class="param"><span class="param-name">event_id</span>: str - Unique event identifier</div>
+                    </div>
+                    <div class="returns">Returns: Event (200 OK) or 404 Not Found</div>
+                </div>
+
+                <div class="function">
+                    <div class="function-name">update_event(event_id: str, event_update: EventUpdate)</div>
+                    <p>Update an existing event.</p>
+                    <div class="params">
+                        <div class="param"><span class="param-name">event_id</span>: str - Event ID to update</div>
+                        <div class="param"><span class="param-name">event_update</span>: EventUpdate - Fields to update</div>
+                    </div>
+                    <div class="returns">Returns: Event (200 OK) or 404 Not Found</div>
+                </div>
+
+                <div class="function">
+                    <div class="function-name">delete_event(event_id: str)</div>
+                    <p>Delete an event from the database.</p>
+                    <div class="params">
+                        <div class="param"><span class="param-name">event_id</span>: str - Event ID to delete</div>
+                    </div>
+                    <div class="returns">Returns: 204 No Content or 404 Not Found</div>
+                </div>
+            </div>
+
+            <div class="module" id="models">
+                <h3>models.py</h3>
+                <p>Pydantic models for request/response validation.</p>
+
+                <div class="function">
+                    <div class="function-name">Event</div>
+                    <p>Complete event model with all fields.</p>
+                    <div class="params">
+                        <div class="param"><span class="param-name">eventId</span>: str - Unique identifier</div>
+                        <div class="param"><span class="param-name">title</span>: str (1-200 chars) - Event title</div>
+                        <div class="param"><span class="param-name">description</span>: str (1-1000 chars) - Event description</div>
+                        <div class="param"><span class="param-name">date</span>: str - Event date (ISO 8601 format)</div>
+                        <div class="param"><span class="param-name">location</span>: str (1-200 chars) - Event location</div>
+                        <div class="param"><span class="param-name">capacity</span>: int (1-100000) - Maximum attendees</div>
+                        <div class="param"><span class="param-name">organizer</span>: str (1-100 chars) - Event organizer</div>
+                        <div class="param"><span class="param-name">status</span>: str - Event status (draft|published|cancelled|completed|active)</div>
+                    </div>
+                </div>
+
+                <div class="function">
+                    <div class="function-name">EventCreate</div>
+                    <p>Model for creating new events. EventId is optional and auto-generated if not provided.</p>
+                </div>
+
+                <div class="function">
+                    <div class="function-name">EventUpdate</div>
+                    <p>Model for updating events. All fields are optional.</p>
+                </div>
+            </div>
+
+            <div class="module" id="database">
+                <h3>database.py</h3>
+                <p>DynamoDB operations for event management.</p>
+
+                <div class="function">
+                    <div class="function-name">create_event(event_data: dict)</div>
+                    <p>Insert a new event into DynamoDB.</p>
+                    <div class="params">
+                        <div class="param"><span class="param-name">event_data</span>: dict - Event data to insert</div>
+                    </div>
+                    <div class="returns">Returns: dict - Created event with generated eventId</div>
+                </div>
+
+                <div class="function">
+                    <div class="function-name">get_event(event_id: str)</div>
+                    <p>Retrieve a single event by ID.</p>
+                    <div class="params">
+                        <div class="param"><span class="param-name">event_id</span>: str - Event identifier</div>
+                    </div>
+                    <div class="returns">Returns: Optional[dict] - Event data or None</div>
+                </div>
+
+                <div class="function">
+                    <div class="function-name">get_all_events()</div>
+                    <p>Scan and retrieve all events from DynamoDB.</p>
+                    <div class="returns">Returns: List[dict] - List of all events</div>
+                </div>
+
+                <div class="function">
+                    <div class="function-name">update_event(event_id: str, update_data: dict)</div>
+                    <p>Update specific fields of an event.</p>
+                    <div class="params">
+                        <div class="param"><span class="param-name">event_id</span>: str - Event to update</div>
+                        <div class="param"><span class="param-name">update_data</span>: dict - Fields to update</div>
+                    </div>
+                    <div class="returns">Returns: Optional[dict] - Updated event or None</div>
+                </div>
+
+                <div class="function">
+                    <div class="function-name">delete_event(event_id: str)</div>
+                    <p>Remove an event from DynamoDB.</p>
+                    <div class="params">
+                        <div class="param"><span class="param-name">event_id</span>: str - Event to delete</div>
+                    </div>
+                    <div class="returns">Returns: bool - Success status</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="endpoints">
+            <h2>API Endpoints</h2>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <code>/events</code>
+                <p>Create a new event</p>
+                <pre>{
+  "eventId": "optional-custom-id",
+  "title": "Event Title",
+  "description": "Event description",
+  "date": "2024-12-15",
+  "location": "Event Location",
+  "capacity": 100,
+  "organizer": "Organizer Name",
+  "status": "published"
+}</pre>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/events</code>
+                <p>Get all events (supports ?status=active query parameter)</p>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/events/{event_id}</code>
+                <p>Get a specific event by ID</p>
+            </div>
+
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <code>/events/{event_id}</code>
+                <p>Update an event (partial updates supported)</p>
+                <pre>{
+  "title": "Updated Title",
+  "capacity": 150
+}</pre>
+            </div>
+
+            <div class="endpoint">
+                <span class="method delete">DELETE</span>
+                <code>/events/{event_id}</code>
+                <p>Delete an event</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
